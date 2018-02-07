@@ -2,7 +2,7 @@
 #include<iostream>
 #include <cassert>
 using namespace std;
-#define LUCAL
+//#define LUCAL
 
 
 
@@ -32,7 +32,7 @@ template< size_t N > class GRAY_INT {
                                         { m_value = INT_TO_GRAY(X); }; 
                 const bitset<N>&    Bits() const
                                         {return m_value;};
-                const int          Int() {
+                const int          Int() const {
                         unsigned int a = Bits().to_ulong();
                         unsigned int digit = 1;
                         unsigned int tmp;
@@ -77,15 +77,16 @@ template< size_t N > class GRAY_INT {
                 
                 
                 GRAY_INT operator+(const GRAY_INT& rhs)  {
+#ifdef LUCAL
                         bitset<N> rbits = rhs.Bits();
                         bitset<N> lbits = this->Bits();
                         // DEBUG ASSERT
-/*                        if(lbits.to_ulong()  > rbits.to_ulong()) {
+                        if(this->Int()  > rhs.Int()) {
                            cout <<  lbits.to_ulong() << endl;
                            cout <<  rbits.to_ulong() << endl;
                            assert(0);
                         }
-*/
+
                         // parity of lhs and rhs
                         bool lhs_p = this->isOdd();
                         bool rhs_p = rhs.isOdd();
@@ -106,10 +107,67 @@ template< size_t N > class GRAY_INT {
                         GRAY_INT<N> r;
                         r.SetBits(res.to_ulong());
                         return r;
+#else
+                        bool v0 = false;
+                        bool v1 = false;
+                        bool prev_bit = 0;
+                        int prebit = N-2;
 
+                        bitset<N> rbits = rhs.Bits();
+                        bitset<N> lbits = this->Bits();
+                        bitset<N>  res(lbits ^ rbits);
+                        for (register int bit = N-1; bit >= 0; bit--){
+                                if (lbits.test(bit)) {
+                                        v0 = !v0;
+                                        if (rbits.test(bit)) {
+                                                v1 = !v1;
+                                                if (v0 == v1) {
+                                                        res.flip(bit + 1);
+                                                        prev_bit = v0;
+                                                        prebit = bit;
+                                                }
+                                        }
+                                        else {
+                                                if (prev_bit == v0){
+                                                        res.flip(prebit + 1);
+                                                }
+                                                prev_bit = v0;
+                                                prebit = bit;
+                                        }
+                                }
+                                else if (rbits.test(bit)) {
+                                        v1 = !v1;
+                                        if (prev_bit == v1){
+                                                res.flip(prebit + 1);
+                                        }
+                                        prev_bit = v1;
+                                        prebit = bit;
+
+                                }
+                        }
+
+
+                        if ((v0 || v1)& !prev_bit){
+                                res.flip(prebit + 1);
+                        }
+                        else if (v0 && v1){
+                                res.flip(1);
+                        }
+
+                        GRAY_INT<N> r;
+                        r.SetBits(res.to_ulong());
+                        return r;
+
+
+#endif
                 }
 
+#if 0
+GRAY_INT GRAY_INT::twice()const{
+    return ((value << 1) & _GetBit_Mod2(value));
+}
 
+#endif
                 private:
                 GRAY_INT(int);
                 bitset<N> m_value;
@@ -122,8 +180,8 @@ int main() {
 
   GRAY_INT<10> a, b;
   a.SetInt(4);
-  b.SetInt(3);
-  GRAY_INT<10> c = a - b;
+  b.SetInt(5);
+  GRAY_INT<10> c = a + b;
   c.print();
   for (int i = 0; i < 10; i++) {
           a++;
