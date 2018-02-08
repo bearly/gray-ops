@@ -2,7 +2,7 @@
 #include<iostream>
 #include <cassert>
 using namespace std;
-//#define LUCAL
+#define LUCAL
 
 
 
@@ -82,9 +82,9 @@ template< size_t N > class GRAY_INT {
                         bitset<N> lbits = this->Bits();
                         // DEBUG ASSERT
                         if(this->Int()  > rhs.Int()) {
-                           cout <<  lbits.to_ulong() << endl;
-                           cout <<  rbits.to_ulong() << endl;
-                           assert(0);
+//                           cout <<  lbits.to_ulong() << endl;
+//                           cout <<  rbits.to_ulong() << endl;
+//                           assert(0);
                         }
 
                         // parity of lhs and rhs
@@ -164,7 +164,10 @@ template< size_t N > class GRAY_INT {
 
                 GRAY_INT<N> twice() const{
                         GRAY_INT<N> ret;
-                        ret.SetBits((this->Bits() << 1) & this->isOdd());
+                        bitset<N> parity (this->isOdd()?1ul:0ul);
+                        ret.SetBits(  ( 
+                                      (this->Bits() << 1) | parity 
+                                                                   ).to_ulong());
                         return ret;
                 }
 
@@ -179,11 +182,8 @@ int main() {
   bitset<sizeof(int)*8> x,y;
 
   GRAY_INT<10> a, b;
-  a.SetInt(4);
-  b.SetInt(5);
-  GRAY_INT<10> c = a + b;
-  c.print();
-  for (int i = 0; i < 10; i++) {
+  a.SetInt(1);
+  for (int i = 0; i < 20; i++) {
           a++;
           int j = a.Int();
           cout << j << " " ;
