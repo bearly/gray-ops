@@ -103,16 +103,15 @@ template< size_t N > class GRAY_INT {
                 
 
                 
-                
-                GRAY_INT operator+(const GRAY_INT& rhs)  {
-#ifdef LUCAL
+                GRAY_INT add_lucal(const GRAY_INT& rhs) {
+
                         bitset<N> rbits = rhs.Bits();
                         bitset<N> lbits = this->Bits();
                         // DEBUG ASSERT
                         if(this->Int()  > rhs.Int()) {
-//                           cout <<  lbits.to_ulong() << endl;
-//                           cout <<  rbits.to_ulong() << endl;
-//                           assert(0);
+                                //                           cout <<  lbits.to_ulong() << endl;
+                                //                           cout <<  rbits.to_ulong() << endl;
+                                //                           assert(0);
                         }
 
                         // parity of lhs and rhs
@@ -135,8 +134,9 @@ template< size_t N > class GRAY_INT {
                         GRAY_INT<N> r;
                         r.SetBits(res.to_ulong());
                         return r;
-#else
-#ifdef JAPAN
+                }
+
+                GRAY_INT add_japan(const GRAY_INT& rhs) {
                         bool v0 = false;
                         bool v1 = false;
                         bool prev_bit = 0;
@@ -187,7 +187,10 @@ template< size_t N > class GRAY_INT {
                         r.SetBits(res.to_ulong());
                         return r;
 
-#else
+
+                }
+
+                GRAY_INT add_loop (const GRAY_INT& rhs) {
                         Unsigned bit = 1;
                         for ( ; bit <= rhs && bit != 0 ; bit <<= 1) {
                                 long both = lhs_p&rhs_p;
@@ -202,8 +205,13 @@ template< size_t N > class GRAY_INT {
                                 return res ^= lhs_p;
                         bit = lhs ^ (lhs & (lhs-bit));
                         return res ^ (bit << 1);
-#endif
-#endif
+                
+                }
+
+                GRAY_INT add_recirsive ( const GRAY_INT& lhs, const GRAY_INT& rhs) {
+                
+                }
+                GRAY_INT operator+(const GRAY_INT& rhs)  {
                 }
 
                 GRAY_INT<N> twice() const{
