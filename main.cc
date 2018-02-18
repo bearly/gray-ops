@@ -2,7 +2,7 @@
 #include<iostream>
 #include <cassert>
 using namespace std;
-#define LUCAL
+//#define LUCAL
 #if 0
 /** bit masks */
 const uintmax_t
@@ -103,7 +103,7 @@ template< size_t N > class GRAY_INT {
                 
 
                 
-                GRAY_INT add_lucal(const GRAY_INT& rhs) {
+                GRAY_INT add_lucal(const GRAY_INT& rhs) const  {
 
                         bitset<N> rbits = rhs.Bits();
                         bitset<N> lbits = this->Bits();
@@ -136,16 +136,17 @@ template< size_t N > class GRAY_INT {
                         return r;
                 }
 
-                GRAY_INT add_japan(const GRAY_INT& rhs) {
+                GRAY_INT<N> add_japan(const GRAY_INT<N>& rhs) const {
                         bool v0 = false;
                         bool v1 = false;
                         bool prev_bit = 0;
                         int prebit = N-2;
 
-                        bitset<N> rbits = rhs.Bits();
-                        bitset<N> lbits = this->Bits();
+                        const bitset<N>& rbits = rhs.Bits();
+                        const bitset<N>& lbits = this->Bits();
                         bitset<N>  res(lbits ^ rbits);
-                        for (size_t bit = N-1; bit >= 0; bit--){
+                        
+                        for (int bit = N-1; bit >= 0; bit--){
                                 if (lbits.test(bit)) {
                                         v0 = !v0;
                                         if (rbits.test(bit)) {
@@ -164,6 +165,7 @@ template< size_t N > class GRAY_INT {
                                                 prebit = bit;
                                         }
                                 }
+
                                 else if (rbits.test(bit)) {
                                         v1 = !v1;
                                         if (prev_bit == v1){
@@ -190,28 +192,13 @@ template< size_t N > class GRAY_INT {
 
                 }
 
-                GRAY_INT add_loop (const GRAY_INT& rhs) {
-                        Unsigned bit = 1;
-                        for ( ; bit <= rhs && bit != 0 ; bit <<= 1) {
-                                long both = lhs_p&rhs_p;
-                                res ^= both;
-                                lhs_p = (lhs_p ^ both ^ lhs) << 1;
-                                rhs_p = ((rhs_p ^ both ^ rhs) & bit) << 1;  
-                        }
-                        if (0 == rhs_p)
-                                return res;
-                        lhs_p &= bit;
-                        if (0 != lhs_p)
-                                return res ^= lhs_p;
-                        bit = lhs ^ (lhs & (lhs-bit));
-                        return res ^ (bit << 1);
                 
-                }
-
-                GRAY_INT add_recirsive ( const GRAY_INT& lhs, const GRAY_INT& rhs) {
-                
-                }
-                GRAY_INT operator+(const GRAY_INT& rhs)  {
+                GRAY_INT operator+(const GRAY_INT& rhs) const  {
+#ifdef LUCAL
+                        return add_lucal(rhs);
+#else
+                        return add_japan(rhs);
+#endif
                 }
 
                 GRAY_INT<N> twice() const{
@@ -231,17 +218,17 @@ template< size_t N > class GRAY_INT {
 
 
 int main() {
-  bitset<sizeof(int)*8> x,y;
-
-  GRAY_INT<10> a, b;
-  a.SetInt(1);
+  
+  GRAY_INT<10> a, b, c;
+  
   for (int i = 0; i < 20; i++) {
-          a++;
-          int j = a.Int();
-          cout << j << " " ;
-          a.print();
-          a.twice().print();
-
+        a.SetInt(i);  
+        for (int j = 0; j <= i; j++) {
+                b.SetInt(j);
+                cout << i << " + " << j << " = " << i+j << "  " << endl;
+                c = a+b;
+                c.print();
+        }        
 
   }
   return 0;
