@@ -1,6 +1,7 @@
 #include<bitset>
 #include<iostream>
 #include <cassert>
+#include <limits>
 using namespace std;
 //#define LUCAL
 #if 0
@@ -55,9 +56,11 @@ template< size_t N > class GRAY_INT {
                                         {cout << m_value << endl;} 
 
                 GRAY_INT&           SetBits( unsigned int X ) 
-                                        { m_value = X; };
+                                        { m_value = X; }
+                GRAY_INT&           SetBits( const bitset<N>& X  ) 
+                                        { m_value = X;  }
                 GRAY_INT&           SetInt( unsigned int X) 
-                                        { m_value = INT_TO_GRAY(X); }; 
+                                        { m_value = INT_TO_GRAY(X); } 
                 const bitset<N>&    Bits() const
                                         {return m_value;};
                 const int          Int() const {
@@ -136,6 +139,8 @@ template< size_t N > class GRAY_INT {
                         return r;
                 }
 
+
+
                 GRAY_INT<N> add_japan(const GRAY_INT<N>& rhs) const {
                         bool v0 = false;
                         bool v1 = false;
@@ -144,9 +149,9 @@ template< size_t N > class GRAY_INT {
 
                         const bitset<N>& rbits = rhs.Bits();
                         const bitset<N>& lbits = this->Bits();
-                        bitset<N>  res(lbits ^ rbits);
+                        bitset<N> res =  (lbits ^ rbits);
                         
-                        for (int bit = N-1; bit >= 0; bit--){
+                        for (register int bit = N-1; bit >= 0; bit--) {
                                 if (lbits.test(bit)) {
                                         v0 = !v0;
                                         if (rbits.test(bit)) {
@@ -177,17 +182,16 @@ template< size_t N > class GRAY_INT {
                                 }
                         }
 
-
                         if ((v0 || v1)& !prev_bit){
                                 res.flip(prebit + 1);
                         }
                         else if (v0 && v1){
-                                res.flip(1);
+                                res.flip(0);
                         }
 
-                        GRAY_INT<N> r;
-                        r.SetBits(res.to_ulong());
-                        return r;
+                        GRAY_INT<N> ret;
+                        ret.SetBits(res);
+                        return ret;
 
 
                 }
